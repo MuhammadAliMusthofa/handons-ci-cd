@@ -3,6 +3,9 @@ import { Shield, Lock, Zap, Binary, Trophy, User, Terminal } from "lucide-react"
 import { CyberCard, CyberCardContent, CyberCardDescription, CyberCardHeader, CyberCardTitle } from "@/components/ui/cyber-card";
 import { CyberButton } from "@/components/ui/cyber-button";
 import { PasswordChecker } from "@/components/PasswordChecker";
+import { PhishingSimulator } from "@/components/PhishingSimulator";
+import { EncryptionLab } from "@/components/EncryptionLab";
+import { FirewallDefense } from "@/components/FirewallDefense";
 
 export const Dashboard = () => {
   const [activeModule, setActiveModule] = useState<string | null>(null);
@@ -25,7 +28,7 @@ export const Dashboard = () => {
       title: "Phishing Hunter",
       description: "Detect malicious emails in the wild",
       icon: Shield,
-      status: "locked",
+      status: "active",
       difficulty: "Intermediate",
       xp: 300,
     },
@@ -34,7 +37,7 @@ export const Dashboard = () => {
       title: "Crypto Lab",
       description: "Explore encryption algorithms",
       icon: Binary,
-      status: "locked",
+      status: "active",
       difficulty: "Advanced",
       xp: 500,
     },
@@ -43,7 +46,7 @@ export const Dashboard = () => {
       title: "Firewall Defense",
       description: "Defend against brute force attacks",
       icon: Zap,
-      status: "locked",
+      status: "active",
       difficulty: "Expert",
       xp: 750,
     },
@@ -56,23 +59,38 @@ export const Dashboard = () => {
     { name: "Crypto Master", icon: "🔒", unlocked: false },
   ];
 
-  if (activeModule === "password-checker") {
-    return (
-      <div className="min-h-screen bg-background p-6">
-        <div className="max-w-6xl mx-auto">
-          <div className="flex items-center gap-4 mb-6">
-            <CyberButton 
-              variant="ghost" 
-              onClick={() => setActiveModule(null)}
-              className="font-mono"
-            >
-              ← Back to Dashboard
-            </CyberButton>
+  const renderActiveModule = () => {
+    const modules = {
+      "password-checker": <PasswordChecker />,
+      "phishing-sim": <PhishingSimulator />,
+      "encryption-lab": <EncryptionLab />,
+      "attack-defense": <FirewallDefense />
+    };
+
+    if (activeModule && modules[activeModule as keyof typeof modules]) {
+      return (
+        <div className="min-h-screen bg-background p-6">
+          <div className="max-w-6xl mx-auto">
+            <div className="flex items-center gap-4 mb-6">
+              <CyberButton 
+                variant="ghost" 
+                onClick={() => setActiveModule(null)}
+                className="font-mono"
+              >
+                ← Back to Dashboard
+              </CyberButton>
+            </div>
+            {modules[activeModule as keyof typeof modules]}
           </div>
-          <PasswordChecker />
         </div>
-      </div>
-    );
+      );
+    }
+
+    return null;
+  };
+
+  if (activeModule) {
+    return renderActiveModule();
   }
 
   return (
