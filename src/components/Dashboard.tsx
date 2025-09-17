@@ -139,7 +139,7 @@ export const Dashboard = () => {
             <div className="absolute inset-0 hex-grid opacity-10" />
             <CyberCardHeader>
               <CyberCardTitle className="text-3xl animate-typing">
-                Welcome, Agent
+                Welcome, Erlangga User 
               </CyberCardTitle>
               <CyberCardDescription className="text-lg">
                 Your mission: Master cybersecurity through hands-on simulations
