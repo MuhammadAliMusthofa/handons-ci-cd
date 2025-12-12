@@ -15,4 +15,9 @@ export default defineConfig(({ mode }) => ({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  preview: {
+    port: 8080,
+    host: true, // Pastikan host diatur ke true atau string yang sesuai
+    allowedHosts: true,
+  },
 }));

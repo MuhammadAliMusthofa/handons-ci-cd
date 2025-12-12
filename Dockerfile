@@ -1,58 +1,30 @@
-# --- Tahap 1: Build React App ---
-FROM node:20-alpine AS builder
-WORKDIR /app
+# Menggunakan image dasar Node.js versi 20
+FROM node:20
 
-# Install PNPM
-RUN npm install -g pnpm
+# Menentukan direktori kerja di dalam container
+WORKDIR /src
 
-# Copy dependency files
-COPY package.json pnpm-lock.yaml* ./
+# Menyalin file package.json dan package-lock.json ke direktori kerja
+COPY package*.json ./
 
-# Install dependencies
-RUN pnpm install --frozen-lockfile
+# Menginstal dependensi yang diperlukan
+RUN npm install
 
-# Copy semua source code
+# Menyalin semua file aplikasi ke dalam direktori kerja
 COPY . .
 
-# --- SETUP ENVIRONMENT VARIABLES ---
-# PENTING: Di React, Env Var "dipanggang" (baked-in) saat build time.
-# Pastikan nama variabel di bawah ini (sebelah kiri) SAMA PERSIS 
-# dengan yang ada di code Anda (misal: VITE_API_URL atau REACT_APP_API_URL).
+ARG PORT
 
-# Tangkap ARG dari GitHub Actions
-ARG NEXT_PUBLIC_API_BASE_URL
-ARG NEXT_PUBLIC_SSO_URL
-ARG NEXT_PUBLIC_MY_URL
-ARG NEXT_PUBLIC_CLIENT_ID
 
-# Set ke ENV agar terbaca saat 'pnpm build'
-# Jika pakai VITE, ganti awalan env jadi VITE_...
-# Jika pakai CRA, ganti awalan env jadi REACT_APP_...
-# Contoh di bawah ini asumsi Anda masih pakai nama NEXT_PUBLIC_ di kodingan
-ENV NEXT_PUBLIC_API_BASE_URL=$NEXT_PUBLIC_API_BASE_URL
-ENV NEXT_PUBLIC_SSO_URL=$NEXT_PUBLIC_SSO_URL
-ENV NEXT_PUBLIC_MY_URL=$NEXT_PUBLIC_MY_URL
-ENV NEXT_PUBLIC_CLIENT_ID=$NEXT_PUBLIC_CLIENT_ID
+# Mengatur variabel lingkungan dengan mendukung override dari environment
+ENV PORT=${PORT}
 
-# Jalankan Build
-RUN pnpm build
-# Hasil build biasanya ada di folder 'dist' (Vite) atau 'build' (CRA)
 
-# --- Tahap 2: Serving dengan Nginx ---
-FROM nginx:alpine AS runner
+# Build aplikasi setelah environment variables di-set
+RUN npm run build
 
-# Copy konfigurasi Nginx yang kita buat tadi
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+# Menentukan port yang akan diexpose menggunakan variabel PORT
+EXPOSE ${PORT}
 
-# Hapus file default nginx
-RUN rm -rf /usr/share/nginx/html/*
-
-# Copy hasil build dari tahap 1 ke folder Nginx
-# PERHATIKAN: Ganti 'dist' menjadi 'build' jika Anda pakai Create React App (CRA)
-COPY --from=builder /app/dist /usr/share/nginx/html
-
-# Expose port 80 (Cloud Run akan otomatis mapping ke sini)
-EXPOSE 80
-
-# Jalankan Nginx
-CMD ["nginx", "-g", "daemon off;"]
+# Menjalankan aplikasi
+CMD ["npm", "start"]
