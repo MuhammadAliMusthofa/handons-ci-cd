@@ -1,4 +1,4 @@
-name: DEPLOY FRONTEND REACT
+name: DEPLOY FRONTEND SOLUTEST
 
 on:
   push:
@@ -13,7 +13,6 @@ env:
   GCP_SERVICE_ACCOUNT_KEY: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
   SERVICE_NAME: ${{ secrets.GCP_APP_NAME }}
   PORT: ${{ secrets.PORT }}
-  # Pastikan secrets di GitHub sudah sesuai
   NEXT_PUBLIC_API_BASE_URL: ${{ secrets.NEXT_PUBLIC_API_BASE_URL }}
   NEXT_PUBLIC_MY_URL: ${{ secrets.NEXT_PUBLIC_MY_URL }}
   NEXT_PUBLIC_SSO_URL: ${{ secrets.NEXT_PUBLIC_SSO_URL }}
@@ -46,20 +45,19 @@ jobs:
         run: gcloud auth configure-docker ${{ env.REGISTRY }}
 
       - name: Build Docker image
-        # Menggunakan github.sha untuk versioning yang unik karena ini event PUSH
         run: |
           docker build \
             --build-arg PORT=${{ env.PORT }} \
-            --build-arg REACT_APP_API_BASE_URL=${{ env.NEXT_PUBLIC_API_BASE_URL }} \
-            --build-arg REACT_APP_MY_URL=${{ env.NEXT_PUBLIC_MY_URL }} \
-            --build-arg REACT_APP_SSO_URL=${{ env.NEXT_PUBLIC_SSO_URL }} \
-            --build-arg REACT_APP_CLIENT_ID=${{ env.NEXT_PUBLIC_CLIENT_ID }} \
-            -t ${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.IMAGE_NAME }}:${{ github.sha }} \
+            --build-arg NEXT_PUBLIC_API_BASE_URL=${{ env.NEXT_PUBLIC_API_BASE_URL }} \
+            --build-arg NEXT_PUBLIC_MY_URL=${{ env.NEXT_PUBLIC_MY_URL }} \
+            --build-arg NEXT_PUBLIC_SSO_URL=${{ env.NEXT_PUBLIC_SSO_URL }} \
+            --build-arg NEXT_PUBLIC_CLIENT_ID=${{ env.NEXT_PUBLIC_CLIENT_ID }} \
+            -t ${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.IMAGE_NAME }}:pr-${{ github.event.pull_request.number }} \
             -t ${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.IMAGE_NAME }}:latest .
 
       - name: Push Docker images
         run: |
-          docker push ${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+          docker push ${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.IMAGE_NAME }}:pr-${{ github.event.pull_request.number }}
           docker push ${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.IMAGE_NAME }}:latest
 
       - name: Deploy to Cloud Run
