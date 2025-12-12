@@ -1,0 +1,69 @@
+name: WORKSHOP CI/CD DEMO
+
+# Trigger: Jalan setiap kali ada push ke branch 'main'
+on:
+  push:
+    branches: ["main"]
+
+# Simulasi Environment Variables (Variable Palsu)
+env:
+  APP_NAME: "aplikasi-workshop-saya"
+  VERSION: "v1.0.0"
+  DEPLOY_TARGET: "Google Cloud Run (Simulation)"
+
+jobs:
+  # JOB 1: Simulasi Build & Test (Continuous Integration)
+  build_and_test:
+    name: 🚧 1. Build & Test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Simulasi Install Dependencies
+        run: |
+          echo "📦 Sedang menginstall package NPM..."
+          echo "npm install..."
+          sleep 2 # Jeda 2 detik biar terlihat mikir
+          echo "✅ Dependencies selesai diinstall!"
+
+      - name: Simulasi Testing
+        run: |
+          echo "🧪 Menjalankan Unit Test..."
+          echo "Running test suite..."
+          sleep 2
+          echo "✅ All tests passed! (100% coverage)"
+
+      - name: Simulasi Build Docker Image
+        run: |
+          echo "🐳 Building Docker Image: ${{ env.APP_NAME }}:${{ env.VERSION }}"
+          sleep 3
+          echo "✅ Docker Image berhasil dibuat!"
+
+  # JOB 2: Simulasi Deploy (Continuous Deployment)
+  # Job ini hanya jalan jika 'build_and_test' SUKSES
+  deploy_simulation:
+    name: 🚀 2. Deploy to Cloud
+    needs: build_and_test # <--- Ini kuncinya! Job ini menunggu job diatas selesai
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Simulasi Login ke Cloud Provider
+        run: |
+          echo "🔑 Login ke Google Cloud..."
+          sleep 1
+          echo "✅ Login Sukses!"
+
+      - name: Simulasi Push Image ke Registry
+        run: |
+          echo "cloud push ${{ env.APP_NAME }}:${{ env.VERSION }}"
+          sleep 2
+          echo "✅ Image berhasil di-upload ke Registry!"
+
+      - name: Simulasi Deploy ke Cloud Run
+        run: |
+          echo "🚀 Deploying app ke ${{ env.DEPLOY_TARGET }}..."
+          sleep 3
+          echo "🌍 App live at: https://${{ env.APP_NAME }}.run.app"
+          echo "✅ DEPLOYMENT SUCCESS!"
